@@ -1876,6 +1876,36 @@ unsigned int SOIL_direct_load_DDS(
 	return tex_ID;
 }
 
+/*
+	Helper function to determine if an extension is present.
+	Returns true (1) if the extension is found, false (0) if not.
+*/
+int SOIL_has_extension(const char * ext_name_to_check)
+{
+	int i;
+	int ext_count;
+	if( atoi( (char const*)glGetString( GL_VERSION ) ) < 3 )
+	{
+		/* Backwards compatibilty for OpenGL 2.1 and earlier */
+		return (NULL != strstr( (char const*)glGetString( GL_EXTENSIONS ),
+				ext_name_to_check ) );
+	}
+	else
+	{
+		/* For OpenGL 3.0 and newer, walk through each available extension */
+		glGetIntegerv(GL_NUM_EXTENSIONS, &ext_count);
+		for(i = 0; i < ext_count; i++)
+		{
+			if( 0 == strcmp( ext_name_to_check,
+				(char const*)glGetStringi( GL_EXTENSIONS, i ) ) )
+			{
+				return 1;
+			}
+		}
+		return 0;
+	}
+}
+
 int query_NPOT_capability( void )
 {
 	/*	check for the capability	*/
@@ -1883,11 +1913,9 @@ int query_NPOT_capability( void )
 	{
 		/*	we haven't yet checked for the capability, do so	*/
 		if(
-			(NULL == strstr( (char const*)glGetString( GL_EXTENSIONS ),
-				"GL_ARB_texture_non_power_of_two" ) )
+			!SOIL_has_extension( "GL_ARB_texture_non_power_of_two" )
 		&&
-			(NULL == strstr( (char const*)glGetString( GL_EXTENSIONS ),
-				"GL_OES_texture_npot" ) )
+			!SOIL_has_extension( "GL_OES_texture_npot" )
 			)
 		{
 			/*	not there, flag the failure	*/
@@ -1909,14 +1937,11 @@ int query_tex_rectangle_capability( void )
 	{
 		/*	we haven't yet checked for the capability, do so	*/
 		if(
-			(NULL == strstr( (char const*)glGetString( GL_EXTENSIONS ),
-				"GL_ARB_texture_rectangle" ) )
+			!SOIL_has_extension( "GL_ARB_texture_rectangle" )
 		&&
-			(NULL == strstr( (char const*)glGetString( GL_EXTENSIONS ),
-				"GL_EXT_texture_rectangle" ) )
+			!SOIL_has_extension( "GL_EXT_texture_rectangle" )
 		&&
-			(NULL == strstr( (char const*)glGetString( GL_EXTENSIONS ),
-				"GL_NV_texture_rectangle" ) )
+			!SOIL_has_extension( "GL_NV_texture_rectangle" )
 			)
 		{
 			/*	not there, flag the failure	*/
@@ -1938,11 +1963,9 @@ int query_cubemap_capability( void )
 	{
 		/*	we haven't yet checked for the capability, do so	*/
 		if(
-			(NULL == strstr( (char const*)glGetString( GL_EXTENSIONS ),
-				"GL_ARB_texture_cube_map" ) )
+			!SOIL_has_extension( "GL_ARB_texture_cube_map" )
 		&&
-			(NULL == strstr( (char const*)glGetString( GL_EXTENSIONS ),
-				"GL_EXT_texture_cube_map" ) )
+			!SOIL_has_extension( "GL_EXT_texture_cube_map" )
 			)
 		#ifdef GL_ES_VERSION_2_0
 		&& (false) /* GL ES 2.0 supports cubemaps, always enable */
@@ -1966,9 +1989,7 @@ int query_DXT_capability( void )
 	if( has_DXT_capability == SOIL_CAPABILITY_UNKNOWN )
 	{
 		/*	we haven't yet checked for the capability, do so	*/
-		if( NULL == strstr(
-				(char const*)glGetString( GL_EXTENSIONS ),
-				"GL_EXT_texture_compression_s3tc" ) )
+		if( !SOIL_has_extension( "GL_EXT_texture_compression_s3tc" ) )
 		{
 			/*	not there, flag the failure	*/
 			has_DXT_capability = SOIL_CAPABILITY_NONE;
