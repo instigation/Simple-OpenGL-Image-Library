@@ -20,11 +20,13 @@
 	#include <windows.h>
 	#include <wingdi.h>
 	#include <GL/gl.h>
+	#include "GL/glext.h"
 #elif defined _WIN32
 	#define WIN32_LEAN_AND_MEAN
 	#include <windows.h>
 	#include <wingdi.h>
 	#include <GL/gl.h>
+	#include "GL/glext.h"
 #elif defined(__APPLE__) || defined(__APPLE_CC__)
 	/*	I can't test this Apple stuff!	*/
 	#include <OpenGL/gl.h>
@@ -1884,7 +1886,10 @@ int SOIL_has_extension(const char * ext_name_to_check)
 {
 	int i;
 	int ext_count;
-	if( atoi( (char const*)glGetString( GL_VERSION ) ) < 3 )
+	int gl_major;
+
+	glGetIntegerv(GL_MAJOR_VERSION, &gl_major);
+	if( gl_major < 3 )
 	{
 		/* Backwards compatibilty for OpenGL 2.1 and earlier */
 		return (NULL != strstr( (char const*)glGetString( GL_EXTENSIONS ),
