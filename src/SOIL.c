@@ -1971,10 +1971,10 @@ int query_cubemap_capability( void )
 			!SOIL_has_extension( "GL_ARB_texture_cube_map" )
 		&&
 			!SOIL_has_extension( "GL_EXT_texture_cube_map" )
-			)
 		#ifdef GL_ES_VERSION_2_0
-		&& (false) /* GL ES 2.0 supports cubemaps, always enable */
+		&& (0) /* GL ES 2.0 supports cubemaps, always enable */
 		#endif
+			)
 		{
 			/*	not there, flag the failure	*/
 			has_cubemap_capability = SOIL_CAPABILITY_NONE;
