@@ -21,12 +21,14 @@
 	#include <wingdi.h>
 	#include <GL/gl.h>
 	#include <GL/glext.h>
+	#define glGetProcAddress(x) wglGetProcAddress(x)
 #elif defined _WIN32
 	#define WIN32_LEAN_AND_MEAN
 	#include <windows.h>
 	#include <wingdi.h>
 	#include <GL/gl.h>
 	#include <GL/glext.h>
+	#define glGetProcAddress(x) wglGetProcAddress(x)
 #elif defined(__APPLE__) || defined(__APPLE_CC__)
 	/*	I can't test this Apple stuff!	*/
 	#include <OpenGL/gl.h>
@@ -39,6 +41,7 @@
 #else
 	#include <GL/gl.h>
 	#include <GL/glx.h>
+#define glGetProcAddress(x) glXGetProcAddress(x)
 #endif
 
 #include "SOIL.h"
@@ -1895,13 +1898,13 @@ int SOIL_has_extension(const char * ext_name_to_check)
 	int ext_count;
 
 	/* Check if glGetStringi is ready to be used. */
-	if (glGetStringi == NULL)
+	if (NULL == glGetStringi)
 	{
 		/* It's not ready, try to get a pointer to it. */
-		glGetStringi = (PFNGLGETSTRINGIPROC)wglGetProcAddress("glGetStringi");
+		glGetStringi = (PFNGLGETSTRINGIPROC) glGetProcAddress( "glGetStringi" );
 
 		/* If it's still not ready, we can't test for the presense of extensions. */
-		if (glGetStringi == NULL)
+		if (NULL == glGetStringi)
 		{
 			return 0;
 		}
