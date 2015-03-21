@@ -118,11 +118,8 @@ unsigned int
 		unsigned int texture_check_size_enum
 	);
 
-/*
-Define for glGetStringi() since it's not available on all platforms.
-I'm looking at you, Windows...
-*/
-static PFNGLGETSTRINGIPROC glGetStringi = NULL;
+/* glGetStringi is needed to check for extenstions */
+PFNGLGETSTRINGIPROC glGetStringi = NULL;
 
 /*	and the code magic begins here [8^)	*/
 unsigned int
