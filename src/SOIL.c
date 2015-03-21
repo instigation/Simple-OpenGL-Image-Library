@@ -20,11 +20,13 @@
 	#include <windows.h>
 	#include <wingdi.h>
 	#include <GL/gl.h>
+	#include <GL/glext.h>
 #elif defined _WIN32
 	#define WIN32_LEAN_AND_MEAN
 	#include <windows.h>
 	#include <wingdi.h>
 	#include <GL/gl.h>
+	#include <GL/glext.h>
 #elif defined(__APPLE__) || defined(__APPLE_CC__)
 	/*	I can't test this Apple stuff!	*/
 	#include <OpenGL/gl.h>
@@ -112,6 +114,12 @@ unsigned int
 		unsigned int opengl_texture_target,
 		unsigned int texture_check_size_enum
 	);
+
+/*
+Define for glGetStringi() since it's not available on all platforms.
+I'm looking at you, Windows...
+*/
+static PFNGLGETSTRINGIPROC glGetStringi = NULL;
 
 /*	and the code magic begins here [8^)	*/
 unsigned int
@@ -1885,6 +1893,19 @@ int SOIL_has_extension(const char * ext_name_to_check)
 {
 	int i;
 	int ext_count;
+
+	/* Check if glGetStringi is ready to be used. */
+	if (glGetStringi == NULL)
+	{
+		/* It's not ready, try to get a pointer to it. */
+		glGetStringi = (PFNGLGETSTRINGIPROC)wglGetProcAddress("glGetStringi");
+
+		/* If it's still not ready, we can't test for the presense of extensions. */
+		if (glGetStringi == NULL)
+		{
+			return 0;
+		}
+	}
 
 	/* Walk through each available extension. */
 	/* Note: passing GL_NUM_EXTENSIONS requires OpenGL 3.0 or higher. */
